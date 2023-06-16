@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
+    "axios": "^1.4.0",
     "lottie-react-native": "^5.1.6",
     "react": "18.0.0",
     "react-native": "0.69.0",
@@ -31,5 +32,8 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "projectConfig": {
+    "backendApiBaseUrl": "http://192.168.1.3:3000"
   }
 }

@@ -1,4 +1,4 @@
-const config = require("./package.json").projectCofig;
+const config = require("./package.json").projectConfig;
 
 module.exports = {
   mongoConfig: {

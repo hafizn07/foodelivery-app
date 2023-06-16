@@ -43,7 +43,7 @@ const userRegister = async (user) => {
       ? (errorMessage = "Username already exist")
       : null;
     error?.code === 11000 && error?.keyPattern?.username
-      ? (errorMessage = "email already exist")
+      ? (errorMessage = "Email already exist")
       : null;
     return {
       status: false,
@@ -98,4 +98,20 @@ const userLogin = async (user) => {
   }
 };
 
-module.exports = { userRegister, userLogin };
+const checkUserExist = async (query) => {
+  let messages = {
+    email: "User already exist",
+    username: "This username is taken",
+  };
+  try {
+    let queryType = Object.keys(query)[0];
+    let userObject = await MongoDB.db
+      .collection(mongoConfig.collections.USERS)
+      .findOne(query);
+    return !userObject
+      ? { status: true, message: `This ${queryType} is not taken` }
+      : { status: false, message: messages[queryType] };
+  } catch (error) {}
+};
+
+module.exports = { userRegister, userLogin, checkUserExist };

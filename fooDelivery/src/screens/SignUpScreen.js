@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import {
   View,
@@ -14,6 +15,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Separator} from '../components';
 import {Display} from '../utils';
 import Feather from 'react-native-vector-icons/Feather';
+import { AuthenticationService } from '../services';
 import LottieView from 'lottie-react-native';
 
 const inputStyle = state => {
@@ -72,6 +74,47 @@ const SignupScreen = ({navigation}) => {
   const [emailState, setEmailState] = useState('default');
   const [usernameState, setUsernameState] = useState('default');
 
+  const register = () => {
+    let user = {
+      username,
+      email,
+      password,
+    };
+    setIsLoading(true);
+    AuthenticationService.register(user).then(response => {
+      setIsLoading(false);
+      if (!response?.status) {
+        setErrorMessage(response?.message);
+      }
+    });
+    // navigation.navigate('RegisterPhone')
+  };
+
+  const checkUserExist = async (type, value) => {
+    if (value?.length > 0) {
+      AuthenticationService.checkUserExist(type, value).then(response => {
+        if (response?.status) {
+          type === 'email' && emailErrorMessage
+            ? setEmailErrorMessage('')
+            : null;
+
+          type === 'username' && usernameErrorMessage
+            ? setUsernameErrorMessage('')
+            : null;
+          type === 'email' ? setEmailState('valid') : null;
+          type === 'username' ? setUsernameState('valid') : null;
+        } else {
+          type === 'email' ? setEmailErrorMessage(response?.message) : null;
+          type === 'username'
+            ? setUsernameErrorMessage(response?.message)
+            : null;
+          type === 'email' ? setEmailState('invalid') : null;
+          type === 'username' ? setUsernameState('invalid') : null;
+        }
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -106,6 +149,9 @@ const SignupScreen = ({navigation}) => {
             selectionColor={Colors.DEFAULT_GREY}
             style={styles.inputText}
             onChangeText={text => setUsername(text)}
+            onEndEditing={({nativeEvent: {text}}) =>
+              checkUserExist('username', text)
+            }
           />
           {showMarker(usernameState)}
         </View>
@@ -125,6 +171,9 @@ const SignupScreen = ({navigation}) => {
             selectionColor={Colors.DEFAULT_GREY}
             style={styles.inputText}
             onChangeText={text => setEmail(text)}
+            onEndEditing={({nativeEvent: {text}}) =>
+              checkUserExist('email', text)
+            }
           />
           {showMarker(emailState)}
         </View>
@@ -156,8 +205,12 @@ const SignupScreen = ({navigation}) => {
         </View>
       </View>
       <Text style={styles.errorMessage}>{errorMessage}</Text>
-      <TouchableOpacity style={styles.signinButton} onPress={() => navigation.navigate('RegisterPhoneScreen')}>
+      <TouchableOpacity style={styles.signinButton} onPress={() => register()}>
+        {isLoading ? (
+          <LottieView source={Images.LOADING} autoPlay />
+        ) : (
           <Text style={styles.signinButtonText}>Create Account</Text>
+        )}
       </TouchableOpacity>
       <Text style={styles.orText}>OR</Text>
       <TouchableOpacity style={styles.facebookButton}>
